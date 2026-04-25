@@ -11,7 +11,7 @@ import re
 
 BOT_TOKEN = "8658717135:AAHCSqhyRoefkZRAETbYga9DU7WInv83GG0"
 BOT_USERNAME = "@SrarchMembot"
-WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://твой-сервер.onrender.com")
+WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://bot1-627y.onrender.com")
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
