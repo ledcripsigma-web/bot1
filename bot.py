@@ -8,10 +8,12 @@ from telegram.constants import ChatAction
 from bs4 import BeautifulSoup
 import random
 import re
+import asyncio
+from threading import Thread
 
 BOT_TOKEN = "8658717135:AAHCSqhyRoefkZRAETbYga9DU7WInv83GG0"
 BOT_USERNAME = "@SrarchMembot"
-WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://bot1-1-9m01.onrender.com")
+WEBHOOK_URL = "https://bot1-1-9m01.onrender.com"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -30,7 +32,7 @@ def home():
 @web_app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     update = Update.de_json(request.get_json(force=True), app.bot)
-    app.update_queue.put(update)
+    asyncio.run(app.update_queue.put(update))
     return "ok"
 
 def search_google_images(query, num_images=10):
@@ -234,10 +236,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.reply_text("не найдено мема")
 
-if __name__ == "__main__":
+def run_bot():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    global app
     app = Application.builder().token(BOT_TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    web_app.run(host="0.0.0.0", port=10000)
+    loop.run_until_complete(app.bot.set_webhook(url=f"{WEBHOOK_URL}/{BOT_TOKEN}"))
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=10000,
+        url_path=BOT_TOKEN,
+        webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
+    )
+
+if __name__ == "__main__":
+    Thread(target=run_bot).start()
+    web_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
